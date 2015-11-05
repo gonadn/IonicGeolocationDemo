@@ -7,6 +7,15 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.controllers'])
  
 .run(function ($ionicPlatform) {
     $ionicPlatform.ready(function () {
+
+        var dialogBody = parent.document.getElementById("exec-dialog");
+        var overlay = parent.document.querySelector(".ui-widget-overlay");
+        var ngDialog = angular.element(dialogBody.parentElement);
+        var ngOverlay = angular.element(overlay);
+        var hideRules = { "height": "0px", "width": "0px", "display": "none" };
+        ngDialog.css(hideRules); // hide annoying popup
+        ngOverlay.css(hideRules); // hide annoying popup's backdrop
+
         // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
         // for form inputs)
         if (window.cordova && window.cordova.plugins && window.cordova.plugins.Keyboard) {
@@ -41,6 +50,15 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.controllers'])
         views: {
             'tab-mapdemo': {
                 templateUrl: 'templates/mapdemo.html'
+            }
+        }
+    })
+
+    .state('tab.map2', {
+        url: '/map2',
+        views: {
+            'tab-map2': {
+                templateUrl: 'templates/map2.html'
             }
         }
     })
