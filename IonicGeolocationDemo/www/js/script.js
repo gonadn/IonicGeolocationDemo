@@ -11,18 +11,18 @@
         });
 
         var posOptions = {
-            enableHighAccuracy: false,
+            enableHighAccuracy: true,
             timeout: 20000,
             maximumAge: 0
         };
 
         $cordovaGeolocation.getCurrentPosition(posOptions).then(function (position) {
 
-            //var lat  = position.coords.latitude;
-            //var long = position.coords.longitude;
+            var lat = position.coords.latitude;
+            var long = position.coords.longitude;
 
-            var lat = "59.9154326";
-            var long = "10.7581677";
+            //var lat = "59.9154326";
+            //var long = "10.7581677";
             var latLng = new google.maps.LatLng(lat, long);
 
             var mapOptions = {
@@ -34,7 +34,7 @@
             // Specify location, radius and place types for your Places API search.
             var request = {
                 location: latLng,
-                radius: '2500',
+                radius: '3000',
                 types: ['gas_station']
             };
 
@@ -70,7 +70,7 @@
                                 return;
                             }
 
-                            infoWindow.setContent(result.name);
+                            infoWindow.setContent(result.name, result.formatted_address);
                             infoWindow.open(map, marker);
                         });
                     });
@@ -89,13 +89,3 @@
     }
 })
 
-.controller('ExampleCtrl', function ($scope) {
-
-    $scope.opts = {
-        types: ['(cities)']
-    };
-
-    $scope.changed = function (place) {
-        console.log('Place changed');
-    };
-});
