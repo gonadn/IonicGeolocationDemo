@@ -54,16 +54,6 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.controllers'])
         }
     })
 
-    .state('tab.map2', {
-        url: '/map2',
-        views: {
-            'tab-map2': {
-                templateUrl: 'templates/map2.html'
-            }
-        }
-    })
-
-
     // if none of the above states are matched, use this as the fallback
     $urlRouterProvider.otherwise('/tab/mapdemo');
 
