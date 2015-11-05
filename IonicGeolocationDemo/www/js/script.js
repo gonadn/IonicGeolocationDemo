@@ -1,58 +1,101 @@
-﻿angular.module('ionic.example', ['ionic'])
+﻿angular.module('starter.controllers', ['ngGplaces'])
 
-    .controller('MapCtrl', function ($scope, $ionicLoading, $compile) {
-        function initialize() {
-            var myLatlng = new google.maps.LatLng(43.07493, -89.381388);
+.controller('MapController', function ($scope, $cordovaGeolocation, $ionicLoading, $compile) {
+
+    document.addEventListener("deviceready", onDeviceReady, false);
+
+    function onDeviceReady() {
+
+        $ionicLoading.show({
+            template: '<ion-spinner icon="bubbles"></ion-spinner><br/>Laster opp!'
+        });
+
+        var posOptions = {
+            enableHighAccuracy: false,
+            timeout: 20000,
+            maximumAge: 0
+        };
+
+        $cordovaGeolocation.getCurrentPosition(posOptions).then(function (position) {
+
+            //var lat  = position.coords.latitude;
+            //var long = position.coords.longitude;
+
+            var lat = "59.9154326";
+            var long = "10.7581677";
+            var latLng = new google.maps.LatLng(lat, long);
 
             var mapOptions = {
-                center: myLatlng,
-                zoom: 16,
+                center: latLng,
+                zoom: 13,
                 mapTypeId: google.maps.MapTypeId.ROADMAP
             };
-            var map = new google.maps.Map(document.getElementById("map"),mapOptions);
 
-            //Marker + infowindow + angularjs compiled ng-click
-            var contentString = "<div><a ng-click='clickTest()'>Click me!</a></div>";
-            var compiled = $compile(contentString)($scope);
+            // Specify location, radius and place types for your Places API search.
+            var request = {
+                location: latLng,
+                radius: '2500',
+                types: ['gas_station']
+            };
 
-            var infowindow = new google.maps.InfoWindow({
-                content: compiled[0]
+            var map = new google.maps.Map(document.getElementById("map"), mapOptions);
+            var infoWindow = new google.maps.InfoWindow();
+            var service = new google.maps.places.PlacesService(map);
+
+            service.nearbySearch(request, function (results, status) {
+
+                if (status == google.maps.places.PlacesServiceStatus.OK) {
+                    for (var i = 0; i < results.length; i++) {
+                        var place = results[i];
+                        console.log('Navn: ' + place.name, 'Addresse: ' + place.vicinity)
+
+                        addMarker(place);
+                    }
+                }
+
+                function addMarker(place) {
+                    var marker = new google.maps.Marker({
+                        map: map,
+                        position: place.geometry.location,
+                        icon: {
+                            url: 'img/fillingstation.png',
+                        }
+                    });
+
+                    google.maps.event.addListener(marker, 'click', function () {
+
+                        service.getDetails(place, function (result, status) {
+                            if (status !== google.maps.places.PlacesServiceStatus.OK) {
+                                console.error(status);
+                                return;
+                            }
+
+                            infoWindow.setContent(result.name);
+                            infoWindow.open(map, marker);
+                        });
+                    });
+                }
             });
 
-            var marker = new google.maps.Marker({
-                position: myLatlng,
-                map: map,
-                title: 'Uluru (Ayers Rock)'
-            });
-
-            google.maps.event.addListener(marker, 'click', function () {
-                infowindow.open(map, marker);
-            });
 
             $scope.map = map;
-        }
-        google.maps.event.addDomListener(window, 'load', initialize);
+            $ionicLoading.hide();
 
-        $scope.centerOnMe = function () {
-            if (!$scope.map) {
-                return;
-            }
 
-            $scope.loading = $ionicLoading.show({
-                content: 'Getting current location...',
-                showBackdrop: false
-            });
+        }, function (err) {
+            $ionicLoading.hide();
+            console.log(err);
+        });
+    }
+})
 
-            navigator.geolocation.getCurrentPosition(function (pos) {
-                $scope.map.setCenter(new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude));
-                $scope.loading.hide();
-            }, function (error) {
-                alert('Unable to get location: ' + error.message);
-            });
-        };
+.controller('ExampleCtrl', function ($scope) {
 
-        $scope.clickTest = function () {
-            alert('Example of infowindow with ng-click')
-        };
+    $scope.opts = {
+        types: ['(cities)']
+    };
 
-    });
+    $scope.changed = function (place) {
+        console.log('Place changed');
+    };
+});
